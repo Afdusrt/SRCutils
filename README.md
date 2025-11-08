@@ -15,7 +15,11 @@ Utilities made in Rust for interacting with the speedrun.com platform via curl r
 std::process::Command("curl").arg(...
 ```
 to send requests to speedrun.com, so make sure curl is on your path.
+
 ## Usage
+
+video showcase https://youtu.be/igt627G4MRQ
+
 ## Edl mode
 <b>To get a compatible edl file:</b>
 <p>Name your individual speedrun video files in this format:</p>
@@ -77,15 +81,38 @@ command example_command.txt
   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
 100   360    0   360    0     0    360      0 --:--:--  0:00:01 --:--:--   676
 100  629k    0  629k    0     0   209k      0 --:--:--  0:00:03 --:--:--  670k
-
+#curl fetches a level.json file to match your level name with the correspoding ids
 
 Central Africa: Countries -- kwjnk6z9
+#data that is sent
 {"csrfToken":"0","settings":{"levelId":"kwjnk6z9","categoryId":"9kvggmjk","playerNames":["afdusrt"],"values":[{"variableId":"j84vge28","valueId":"qyzzwo21"}],"gameId":"nd28p43d","platformId":"o7e25xew","date":1762634611,"igt":{"hour":0,"minute":0,"second":0,"millisecond":752},"video":"https://www.youtube.com/watch?v=nuAeFoRm3do&t=0","videoState":0,"comment":"00:00:00:00"},"autoverify":false}
+#response
 {"runId":"m32rn76y"}
 
 Austria: State Capitals -- kwjnjzn9
+#data that is sent
 {"csrfToken":"0","settings":{"levelId":"kwjnjzn9","categoryId":"9kvggmjk","playerNames":["afdusrt"],"values":[{"variableId":"j84vge28","valueId":"qyzzwo21"}],"gameId":"nd28p43d","platformId":"o7e25xew","date":1762634611,"igt":{"hour":0,"minute":0,"second":1,"millisecond":229},"video":"https://www.youtube.com/watch?v=nuAeFoRm3do&t=8","videoState":0,"comment":"00:00:08:14"},"autoverify":false}
+#response
 {"runId":"y40r27qz"}
 ```
 
 ## Misc
+## Creating a csv file manually
+<p>The following steps assume you use LibreOffice Calc 25.8.2.2</p>
+<p>Structure your csv like this:</p>
+
+```shell
+  --A-------|--B--|--C----|--D----|--E---------|--F--------|--G----------|
+1-Level_name|hours|seconds|minutes|milliseconds|description|url+timestamp|
+2-Level_name|hours|seconds|minutes|milliseconds|description|url+timestamp|
+...
+```
+
+<p>File -> Save As, Here, check "Edit filter settings", put the "Field delimiter" as "°" and put the "String delimiter" as "" (nothing)</p>
+<p>After saving, you can check your saved file with a text editor to ensure it looks like this:</p>
+
+```shell
+Central Africa: Countries°0°0°0°752°00:00:00:00°https://www.youtube.com/watch?v=nuAeFoRm3do&t=0
+Austria: State Capitals°0°0°1°229°00:00:08:14°https://www.youtube.com/watch?v=nuAeFoRm3do&t=8
+...
+```
