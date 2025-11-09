@@ -1,15 +1,16 @@
 use std::process::Command;
 use std::fs;
+use std::time::SystemTime;
 
 fn decode_weird_unicode(s: &str) -> String {
 	let mut result = String::new();
 	let mut chars = s.chars().peekable();
-
+	
 	while let Some(c) = chars.next() {
-		if c == '\\' && chars.peek() == Some(&'u') {
+		if c == '\\' && chars.peek() == Some(&'u') { //check if there is a sorta \uFFFF 
 			chars.next();
 			let hex: String = chars.by_ref().take(4).collect();
-			if let Ok(code_point) = u32::from_str_radix(&hex, 16) {
+			if let Ok(code_point) = u32::from_str_radix(&hex, 16) { //convert hex unicode string to u32
 			if let Some(ch) = std::char::from_u32(code_point) {
 					result.push(ch);
 				}
@@ -18,12 +19,11 @@ fn decode_weird_unicode(s: &str) -> String {
 			result.push(c);
 		}
 	}
-
+	
 	result
 }
 
 pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command_path: &str, modifier: &str) {
-	
 	//get levels list json
 	if game_abbreviation != "//" {
 		Command::new("curl")
@@ -42,7 +42,7 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 	let raw_levels_json = fs::read_to_string("levels.json")
 		.expect("Didnt read file");
 	
-	let levels_json = decode_unicode_escapes(&raw_levels_json);
+	let levels_json = decode_weird_unicode(&raw_levels_json);
 	
 	let example_command = fs::read_to_string(example_command_path)
 		.expect("Didnt read file");
@@ -58,6 +58,9 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 			//println!("==========");
 		}
 	}
+	
+	//get time since UNIX_EPOCH date
+	let new_date_text = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
 	
 	let mut data_argument = String::from("");
 	//replace example levelId with placeholder ========
@@ -79,6 +82,8 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 	}
 	
 	//DSV rows actions...
+	let mut log = String::new(); //string for logging failed requests
+	
 	let lines: Vec<&str> = contents.lines().collect();
 	//iterate over each row in the dsv file and submit runs according to that field
 	//for i in 0..2 {
@@ -101,9 +106,21 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 		
 		let parts0formatted = format!("{}\"", parts[0]);
 		//let level_name_index = levels_json.find(parts[0]).unwrap(); //find where the level name is in the json file
-		let level_name_index = levels_json.find(&parts0formatted).unwrap(); //find where the level name is in the json file
-
-		let level_id = &levels_json[(level_name_index - 18)..(level_name_index - 10)]; //go back a couple characters to get the level id next to the name
+		
+		//let level_name_index = levels_json.find(&parts0formatted).unwrap(); //find where the level name is in the json file
+		
+		let mut level_id = String::new();
+		
+		if let Some(level_name_index) = levels_json.find(&parts0formatted) {
+			level_id = (&levels_json[(level_name_index - 18)..(level_name_index - 10)]).to_string(); //go back a couple characters to get the level id next to the name
+		} else {
+			println!("Cannot find level: {}, skipping this i", &parts0formatted);
+			let log_msg = format!("Line {}: {}\n", i, parts0formatted);
+			log.push_str(&log_msg);
+			continue;
+		}
+		
+		//let level_id = &levels_json[(level_name_index - 18)..(level_name_index - 10)]; //go back a couple characters to get the level id next to the name
 		
 		//println!("\n==========");
 		//println!("{} -- {}", parts[0], &level_id);
@@ -200,12 +217,31 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 			);
 		}
 		
-		//println!("{}", data_argument);
+		//replace date in example_command with current date
+		if let Some(date_index) = data_argument.find("date") {
+			let almost_date_block = &data_argument[date_index..];
+			let date_block_ending_index = almost_date_block.find(r",").unwrap();
+			let date_block = &almost_date_block[..date_block_ending_index + 1];
+			
+			let date_text_ending_index = date_block.find(",").unwrap();
+			
+			let date_text = &date_block[6..date_text_ending_index];
+			
+
+			let new_date_block = &date_block.replace(date_text,
+				&new_date_text.to_string()
+			);
+
+			data_argument = data_argument.replace(date_block, 
+				&new_date_block
+			);
+		}
 		
+		//put level id
 		let new_data_argument = data_argument.replace("========", &level_id);
 		println!();
 		println!("\n{} -- {}", parts[0], &level_id);
-		println!("{}", new_data_argument);
+		println!("{}", new_data_argument); //print final payload
 		
 		if modifier != "//" {
 			Command::new("curl")
@@ -225,4 +261,7 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 				.status().expect("Failure");
 		}
 	}
+	println!("\n==== Missing Level Log ====\n{}\n", log);
+	fs::write("Log.txt", &log).expect("Could not write log file");
+	println!("Missing levels log saved to \"Log.txt\"")
 }
