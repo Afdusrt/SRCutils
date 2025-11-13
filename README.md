@@ -16,6 +16,7 @@ std::process::Command("curl").arg(...
 ```
 to send requests to speedrun.com, so make sure curl is on your path.
 
+The GUI part of this program uses autohotkey.
 ## Usage
 
 video showcase https://youtu.be/igt627G4MRQ
