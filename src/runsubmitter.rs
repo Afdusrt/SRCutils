@@ -104,7 +104,7 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 			parts[4] = "0";
 		}
 		
-		let parts0formatted = format!("{}\"", parts[0]);
+		let parts0formatted = format!("\"{}\"", parts[0]);
 		//let level_name_index = levels_json.find(parts[0]).unwrap(); //find where the level name is in the json file
 		
 		//let level_name_index = levels_json.find(&parts0formatted).unwrap(); //find where the level name is in the json file
@@ -112,7 +112,7 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 		let mut level_id = String::new();
 		
 		if let Some(level_name_index) = levels_json.find(&parts0formatted) {
-			level_id = (&levels_json[(level_name_index - 18)..(level_name_index - 10)]).to_string(); //go back a couple characters to get the level id next to the name
+			level_id = (&levels_json[(level_name_index - 17)..(level_name_index - 9)]).to_string(); //go back a couple characters to get the level id next to the name
 		} else {
 			println!("Cannot find level: {}, skipping this i", &parts0formatted);
 			let log_msg = format!("Line {}: {}\n", i, parts0formatted);
@@ -244,7 +244,7 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 		println!("{}", new_data_argument); //print final payload
 		
 		if modifier != "//" {
-			Command::new("curl")
+			let output = Command::new("curl")
 				.arg("https://www.speedrun.com/api/v2/PutRunSettings")
 				.arg("-X")
 				.arg("POST")
@@ -258,7 +258,16 @@ pub fn submit_runs(game_abbreviation: &str, dsv_file_path: &str, example_command
 				.arg("--data-raw")
 				.arg(new_data_argument)
 			
-				.status().expect("Failure");
+				.output().expect("Failure");
+				
+			let string_to_print = String::from_utf8_lossy(&output.stdout);
+			println!("{:?}", string_to_print);
+			
+			if string_to_print.contains("Bad Request") {
+				println!("ts shit failed");
+				let log_msg = format!("Line {}: {} failed at submission\n", i, parts0formatted);
+				log.push_str(&log_msg);
+			}
 		}
 	}
 	println!("\n==== Missing Level Log ====\n{}\n", log);
