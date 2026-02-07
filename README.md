@@ -1,3 +1,4 @@
+# ⚠ Due to changes in speedrun.com requiring cloudflare turnstile tokens, sub mode is under maintanance.😶
 # SRCutils
 Utilities made in Rust for interacting with the speedrun.com platform via curl requests.
 
