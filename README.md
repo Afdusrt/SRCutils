@@ -20,7 +20,8 @@ to send requests to speedrun.com, so make sure curl is on your path.
 The GUI part of this program uses autohotkey.
 ## Usage
 
-video showcase https://youtu.be/igt627G4MRQ
+<img width="2000" height="4000" alt="Untitled" src="https://github.com/user-attachments/assets/31e575d8-0dfe-43fc-96ab-12b5285b8ece" />
+
 
 ## Edl mode
 <b>To get a compatible edl file:</b>
