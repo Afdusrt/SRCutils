@@ -1,4 +1,4 @@
-# ⚠ Due to changes in speedrun.com requiring cloudflare turnstile tokens, sub mode is under maintanance.😶
+# ⚠ DUEE to changes in speedrun.com requiring cloudflare turnstile tokens, sub mode is under maintanance.😶
 # SRCutils
 Utilities  for interacting with the speedrun.com platform via curl requests.
 
