@@ -1,0 +1,15 @@
+[package]
+name = "maybe3"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+json = "0.12.4"
+
+[[bin]]
+name = "prepare-sheet"
+path = "src/prepare-sheet.rs"
+
+[[bin]]
+name = "submit-sheet"
+path = "src/submit-sheet.rs"
