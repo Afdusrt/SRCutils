@@ -222,6 +222,7 @@ fn main() {
 			should_next_comma_left = true;
 			//print!("Variable: {}, option: {}\n", &matrix[i][n], &matrix[i][n+1]);
 		}
+		//should_next_comma_left = false;
 		
 		let pre_patch_payload = payload.clone();
 			//======= //shit
@@ -234,27 +235,38 @@ fn main() {
 				}
 				
 				let default_value = &var.options[0][..8];
+				
+				if should_next_comma_left {
+					payload.push_str(",\n");
+				}
 				payload.push_str(&format!(
-					", \"{}\": {{ \"type\": \"pre-defined\", \"value\": \"{}\" }}",
+					//", \"{}\": {{ \"type\": \"pre-defined\", \"value\": \"{}\" }}",
+					"  \"{}\": {{ \"type\": \"pre-defined\", \"value\": \"{}\" }}",
 					var_id, default_value
 				));
 				
+				should_next_comma_left = true;
 			}
 			
 			for var in vars.iter() {
-    let var_id = &var.id[0..8];
+				let var_id = &var.id[0..8];
 
-    if payload.contains(&format!("\"{}\":", var_id)) {
-        continue;
-    }
+				if payload.contains(&format!("\"{}\":", var_id)) {
+					continue;
+				}
 
-    let default_value = &var.options[0][..8];
-
-    payload.push_str(&format!(
-        ", \"{}\": {{ \"type\": \"pre-defined\", \"value\": \"{}\" }}",
-        var_id, default_value
-    ));
-}
+				let default_value = &var.options[0][..8];
+				
+				if should_next_comma_left {
+					payload.push_str(",\n");
+				}
+				payload.push_str(&format!(
+					"  \"{}\": {{ \"type\": \"pre-defined\", \"value\": \"{}\" }}",
+					var_id, default_value
+				));
+				
+				should_next_comma_left = true;
+			}
 			//=======
 		payload.push_str("\n }");// close variables
 		payload.push_str("\n}}");
