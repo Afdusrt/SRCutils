@@ -64,9 +64,14 @@ NOTE: For this example, libreoffice calc is used.
 
 1. Open sheet, uncheck to use anything other than '|' as a delimiter, use no string delimiter. This is important, as otherwise it would change formatting.
 
+![ilustrative image](readmeimages/1libreofficeopen.PNG "")
+
 2. You now see the format. Do not modify A1 -> A4. Each row below the headers (date, region...) is a seperate run. Fill in all fields. Use a full video link. Do not include '"' in your comment. To choose variables, copy cells from the reference. (in this example,  the first run will set the platform variable to website, and the second run will set it to touch web). NOTE: For APIv1, you have to submit with archived variables set. In the screenshot, this spreadsheet will fail to submit, because not every row is full. you can delete rows of levels you didnt do.
-3. Some variables are per level only, these are represented at the end of the row, next to the affected level. manually unwrap the value you want. (run 3, (highlighted in green), will be invalid, because we didnt unwrap our chosen value)
-4. we are now ready for **submit-sheet** feature.
+3. Some variables are per level only, these are represented at the end of the row, next to the affected level. manually unwrap the value you want. (run 3, (highlighted in green), will be invalid, because we didnt unwrap our chosen value), run 4 is valid.
+
+![ilustrative image](readmeimages/4libreofficetop.PNG "")
+   
+5. we are now ready for **submit-sheet** feature.
 ### 3. Submit sheet:
 ```shell
 HELP:
@@ -80,5 +85,9 @@ submit-sheet.exe keykeykeykeykeykey spreadsheet.csv
 Now we compare the output of the command line, where each json payload represents the run to our spreadsheet.
 > **BIG NOTE:** If a game has level-specific variables, the output, will be very crowded, because of api v1 quirk, where you need to declare each level-specific variable on each level, this might get fixed some day.
 If it matches up. we type "yes", and our runs will be submitted, with a limit of 1 request per 2 seconds.
+
+Monitor the output after that, to see speedrun.com error codes.
+
+![ilustrative image](readmeimages/5presubmit.PNG "")
 
 **ALWAYS CHECK PENDING AFTERWARDS**
