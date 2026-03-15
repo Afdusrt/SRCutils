@@ -96,6 +96,7 @@ fn main() {
     let parsed_variables = json::parse(&variables_raw).unwrap();
     //let mut vars: Vec<Variable> = Vec::new();
     let mut vars_per_level: Vec<Variable> = Vec::new();
+    let mut vars: Vec<Variable> = Vec::new();
     for i in 0..parsed_variables["data"].len() {
 		//variable==== id/ name
 		println!("{}/ {}", parsed_variables["data"][i]["id"], parsed_variables["data"][i]["name"]);
@@ -125,14 +126,14 @@ fn main() {
 					if_il_id: if_il_id,
 					options: options, //Vec<String>
 			});
-		} /*else {
+		} else {
 			vars.push( Variable {
 					id: parsed_variables["data"][i]["id"].to_string(),
 					name: parsed_variables["data"][i]["name"].to_string(),
 					if_il_id: if_il_id,
 					options: options, //Vec<String>
 			});
-		}*/
+		}
 		//println!("{}/ {} |Options:", vars[i].id, vars[i].name);
 	}
 	
@@ -234,10 +235,26 @@ fn main() {
 				
 				let default_value = &var.options[0][..8];
 				payload.push_str(&format!(
+					", \"{}\": {{ \"type\": \"pre-defined\", \"value\": \"{}\" }}",
+					var_id, default_value
+				));
+				
+			}
+			
+			for var in vars.iter() {
+    let var_id = &var.id[0..8];
+
+    if payload.contains(&format!("\"{}\":", var_id)) {
+        continue;
+    }
+
+    let default_value = &var.options[0][..8];
+
+    payload.push_str(&format!(
         ", \"{}\": {{ \"type\": \"pre-defined\", \"value\": \"{}\" }}",
         var_id, default_value
     ));
-			}
+}
 			//=======
 		payload.push_str("\n }");// close variables
 		payload.push_str("\n}}");
@@ -251,7 +268,7 @@ fn main() {
     for i in 0..ppp_runs.len() {
 		println!("{}", ppp_runs[i]);
 	}
-println!("{:?}", vars_per_level);
+//println!("{:?}", vars_per_level);
 	println!("==================\nSubmit the speedruns? (yes or no)");
 	let mut input_text = String::new();
     io::stdin().read_line(&mut input_text).expect("failed to read from stdin");
