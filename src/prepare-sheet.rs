@@ -1,4 +1,5 @@
 use std::{ env, fs, io, process, process::Command, };
+use std::collections::HashMap;
 
 fn fetch(s: &str, n: &str) -> String {
 	Command::new("curl")
@@ -76,12 +77,27 @@ fn main() {
 	let file_to_save = &args[2];
 	let modifier = &args[args.len()-1];
 	
+	let ggd_raw = fetch(&format!("v2/GetGameData?gameUrl={}", game_abbreviation), "ggd");
+    let parsed_ggd = json::parse(&ggd_raw).unwrap();
+    let mut archived_map: HashMap<String, bool> = HashMap::new();
+
+for i in 0..parsed_ggd["variables"].len() {
+    let id = parsed_ggd["variables"][i]["id"].as_str().unwrap().to_string();
+    let archived = parsed_ggd["variables"][i]["archived"]
+        .as_bool()
+        .unwrap_or(false);
+
+    archived_map.insert(id, archived);
+}
+	if modifier == "debug" {
+		println!("{:?}", archived_map);
+	}
 	let categories_raw = fetch(&format!("v1/games/{}/categories", game_abbreviation), "categories");
 	let parsed_categories = json::parse(&categories_raw).unwrap();
 	
 	let mut cats: Vec<Category> = Vec::new();
 	
-	println!("Pick category?:\n========"); //prints categories, their id, and scope
+	println!("Pick category?:\n========");
 		for i in 0..parsed_categories["data"].len() {
 			let mut is_il = false;
 			if parsed_categories["data"][i]["type"].to_string() == "per-level" {
@@ -103,7 +119,9 @@ fn main() {
 	let mut input_text = String::new();
     io::stdin().read_line(&mut input_text).expect("failed to read from stdin");
     let selection: i32 = input_text.trim().parse().expect("string was not intable");
-    println!("You picked category: {}", cats[selection as usize].name);
+    if modifier == "debug" {
+		println!("You picked category: {}", cats[selection as usize].name);
+	}
     let mut selected_cat = &mut cats[selection as usize];
     
     /*let mut is_level = false;
@@ -120,8 +138,10 @@ fn main() {
     let mut vars_per_level: Vec<Variable> = Vec::new();
     
     //println!("Variables for {}:\n========", cats[selection as usize].name);
-    println!("Variables for {}:\n========", selected_cat.name);
-    for i in 0..parsed_variables["data"].len() {
+    if modifier == "debug" {
+		println!("Variables for {}:\n========", selected_cat.name);
+	}
+    /*for i in 0..parsed_variables["data"].len() {
 		//variable==== id/ name
 		println!("{}/ {}", parsed_variables["data"][i]["id"], parsed_variables["data"][i]["name"]);
 		
@@ -159,8 +179,47 @@ fn main() {
 			});
 		}
 		//println!("{}/ {} |Options:", vars[i].id, vars[i].name);
+	}*/
+	for i in 0..parsed_variables["data"].len() {
+		let id = parsed_variables["data"][i]["id"].as_str().unwrap().to_string();
+
+		//cross reference ggd
+		let is_archived = archived_map.get(&id).copied().unwrap_or(false);
+
+		if is_archived {
+			continue;
+		}
+		
+		if modifier == "debug" {
+			println!("{}/ {}", id, parsed_variables["data"][i]["name"]);
+		}
+		
+		let mut is_per_level = false;
+		let mut if_il_id = String::new();
+
+		if parsed_variables["data"][i]["scope"]["type"] == "single-level" {
+			if_il_id = parsed_variables["data"][i]["scope"]["level"].to_string();
+			is_per_level = true;
+		}
+
+		let mut options: Vec<String> = Vec::new();
+		for (opt_id, name) in parsed_variables["data"][i]["values"]["values"].entries() {
+			options.push(format!("{}/ {}", opt_id, name["label"]));
+		}
+
+		let var = Variable {
+			id: id.clone(),
+			name: parsed_variables["data"][i]["name"].to_string(),
+			if_il_id,
+			options,
+		};
+
+		if is_per_level {
+			vars_per_level.push(var);
+		} else {
+			vars.push(var);
+		}
 	}
-	
 	//cats[selection as usize].variables = vars;
 	selected_cat.variables = vars;
 	selected_cat.variables_per_level = vars_per_level;
@@ -181,19 +240,20 @@ struct Category {
 	variables: Vec<Variable>,
 	variables_per_level: Vec<Variable>
 }*/
-	println!("======== recap");
-	println!("Picked category (id, name, is_il):");
-	println!();
-	println!("={}/ {}/ {}", selected_cat.id, selected_cat.name, selected_cat.is_il);
-	println!("This category has these variables, and these options:");
-	for i in 0..selected_cat.variables.len() {
-		println!("{}/ {}/", selected_cat.variables[i].id,
+	if modifier == "debug" {
+		println!("======== recap");
+		println!("Picked category (id, name, is_il):");
+		println!();
+		println!("={}/ {}/ {}", selected_cat.id, selected_cat.name, selected_cat.is_il);
+		println!("This category has these variables, and these options:");
+		for i in 0..selected_cat.variables.len() {
+			println!("{}/ {}/", selected_cat.variables[i].id,
 									selected_cat.variables[i].name,
-		);
-		println!("={:?}", selected_cat.variables[i].options);
+			);
+			println!("={:?}", selected_cat.variables[i].options);
+		}
+		println!("Category also has {} per-level variables", selected_cat.variables_per_level.len());
 	}
-	println!("Category also has {} per-level variables", selected_cat.variables_per_level.len());
-	
 	//====================
 	//====================
 	//====================
@@ -201,8 +261,7 @@ struct Category {
 	//====================
 	println!("=========\n Now, select a platform for the game:");
 	//https://www.speedrun.com/api/v2/GetGameData?gameUrl=color_book
-	let ggd_raw = fetch(&format!("v2/GetGameData?gameUrl={}", game_abbreviation), "ggd");
-    let parsed_ggd = json::parse(&ggd_raw).unwrap();
+	
     
     let mut plats: Vec<String> = Vec::new();
 	plats.push("NO".to_string());
@@ -220,7 +279,9 @@ struct Category {
     let selection: i32 = input_text.trim().parse().expect("string was not intable");
     
     let mut selected_plat = &plats[selection as usize];
-    println!("{}", selected_plat);
+    if modifier == "debug" {
+		println!("{}", selected_plat);
+	}
     //====================
     
     //====================
@@ -247,8 +308,9 @@ struct Category {
 		selection = input_text_trimmed.parse().expect("string was not intable");;
 	}
     let mut selected_region = &regions[selection as usize];
-    
-    println!("{}", selected_region);
+    if modifier == "debug" {
+		println!("{}", selected_region);
+	}
 	/*
 	println!("Pick category?:\n========"); //prints categories, their id, and scope
 		for i in 0..parsed_categories["data"].len() {
@@ -271,8 +333,9 @@ struct Category {
     
 	let mut max_options = largest_options_count(&selected_cat);
 	max_options += 2;
-	println!("Maximum options for any variable: {}", max_options);
-	
+	if modifier == "debug" {
+		println!("Maximum options for any variable: {}", max_options);
+	}
 	let mut matrix: Vec<Vec<String>> = vec![];
 	
 	let num_columns = 11 + (selected_cat.variables.len() * 2);
@@ -327,13 +390,17 @@ struct Category {
 	//parsed_ggd
 	if selected_cat.is_il {
 		for i in 0..parsed_ggd["levels"].len() {
-			levels.push( format!("{}/ {}", parsed_ggd["levels"][i]["id"], parsed_ggd["levels"][i]["name"]) )
+			if !parsed_ggd["levels"][i]["archived"].as_bool().expect("it wasnt bool what") {
+				levels.push( format!("{}/ {}", parsed_ggd["levels"][i]["id"], parsed_ggd["levels"][i]["name"]) )
+			}
+			//levels.push( format!("{}/ {}", parsed_ggd["levels"][i]["id"], parsed_ggd["levels"][i]["name"]) )
 		}
-		for i in 0..=parsed_ggd["regions"].len() {
-			println!("{}/ {}", i, regions[i]);
+		if modifier == "debug" {
+			for i in 0..=parsed_ggd["regions"].len() {
+				println!("{}/ {}", i, regions[i]);
+			}
+			println!("{:?}", levels);
 		}
-		println!("{:?}", levels);
-		
 		for _ in 0..levels.len()-1 {
 			let row = vec!["".to_string(); num_columns]; // empty strings for now
 			matrix.push(row);
@@ -362,12 +429,15 @@ struct Category {
 		}
 	}
 	//====================
-	println!("{:?}", matrix);
-	println!();
-	println!();
-	println!();
-	println!();
-	println!("{:?}", selected_cat.variables_per_level);
+	if modifier == "debug" {
+		println!("{:?}", matrix);
+		println!();
+		println!();
+		println!();
+		println!();
+		println!("{:?}", selected_cat.variables_per_level);
+	}
+	println!("===============\nSpreadsheet saved as: {}", file_to_save);
 	write_csv(matrix, file_to_save);
 	//to be csv file
 	/*

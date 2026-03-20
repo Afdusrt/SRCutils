@@ -86,12 +86,13 @@ fn main() {
         matrix.push(line);
     }
 
-    println!("{:?}", matrix[3][0]);
+    //println!("{:?}", matrix[3][0]);
 
     let mut first_run_line_index: i32 = matrix[3][0].parse().expect("");
     first_run_line_index -= 1;
-    println!("{:?}", matrix[first_run_line_index as usize]);
+    //println!("{:?}", matrix[first_run_line_index as usize]);
 	//let variables_raw = fetch("v1/games/nd28p43d/variables", "variables2");
+/*
 	let variables_raw = fs::read_to_string("variables2").unwrap();
     let parsed_variables = json::parse(&variables_raw).unwrap();
     //let mut vars: Vec<Variable> = Vec::new();
@@ -136,7 +137,7 @@ fn main() {
 		}
 		//println!("{}/ {} |Options:", vars[i].id, vars[i].name);
 	}
-	
+*/
     let mut runs: Vec<String> = Vec::new();
     let mut ppp_runs: Vec<String> = Vec::new();
 
@@ -171,8 +172,19 @@ fn main() {
         } else {
             payload.push_str(" \"emulated\": false,\n",);
         }
-
-        //if matrix[i][4] != "NO" ----players will not implement until coop submissions work for moderators again
+		let mut should_next_comma_left2 = false;
+        if matrix[i][4] != "NO" {
+			payload.push_str(" \"players\": [\n");
+			let player_vec = matrix[i][4].split(',');
+			for player in player_vec {
+				if should_next_comma_left2 {
+					payload.push_str(",\n");
+				}
+				payload.push_str(&format!("  {{\"rel\": \"user\", \"id\": \"{}\"}}", player));
+				should_next_comma_left2 = true;
+			}
+			payload.push_str("\n ],\n");
+		}//----players will not implement until coop submissions work for moderators again
 		
 		//times
         payload.push_str(" \"times\": {\n");
@@ -224,8 +236,9 @@ fn main() {
 		}
 		//should_next_comma_left = false;
 		
-		let pre_patch_payload = payload.clone();
+		let mut pre_patch_payload = payload.clone();
 			//======= //shit
+			/*
 			for var in vars_per_level.iter() {
 				let var_id = &var.id[0..8];
 				
@@ -266,13 +279,15 @@ fn main() {
 				));
 				
 				should_next_comma_left = true;
-			}
+			}*/
 			//=======
 		payload.push_str("\n }");// close variables
+		pre_patch_payload.push_str("\n }");// close variables
 		payload.push_str("\n}}");
+		pre_patch_payload.push_str("\n}}");
 		//==============
-        ppp_runs.push(pre_patch_payload.clone());
-        runs.push(payload.clone());
+        runs.push(pre_patch_payload.clone());
+        ppp_runs.push(payload.clone());
      //   println!("{}", payload);
         //println!("{}", matrix[i as usize][5]);
     }
@@ -287,9 +302,11 @@ fn main() {
     let trimmed = input_text.trim().to_lowercase();
     
     if trimmed == "no" {
+		/*
 		for i in 0..runs.len() {
-		println!("{}", runs[i]);
-	}
+			println!("{}", runs[i]);
+		}
+		*/
 		return
 	}
 	//==================
