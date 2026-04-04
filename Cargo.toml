@@ -13,3 +13,7 @@ path = "src/prepare-sheet.rs"
 [[bin]]
 name = "submit-sheet"
 path = "src/submit-sheet.rs"
+
+[[bin]]
+name = "timestamp-sheet"
+path = "src/timestamp-sheet.rs"

@@ -155,25 +155,30 @@ fn main() {
             //println!("levels");
         }
 
-        if matrix[i][0] != "NO" {
+        if !matrix[i][0].is_empty() && matrix[i][0] != "NO" {
             payload.push_str(&format!(" \"date\": \"{}\",\n", &matrix[i][0]));
         }
 
-        if matrix[i][1] != "NO" {
+        if !matrix[i][1].is_empty() && matrix[i][1] != "NO" {
             payload.push_str(&format!(" \"region\": \"{}\",\n", &matrix[i][1][0..8]));
         }
 
-        if matrix[i][2] != "NO" {
+        if !matrix[i][2].is_empty() && matrix[i][2] != "NO" {
             payload.push_str(&format!(" \"platform\": \"{}\",\n", &matrix[i][2][0..8]));
         }
 
-        if matrix[i][3] != "NO" {
+        if !matrix[i][3].is_empty() && matrix[i][3] != "NO" {
             payload.push_str(" \"emulated\": true,\n",);
         } else {
             payload.push_str(" \"emulated\": false,\n",);
         }
+        
+        if !matrix[i][5].is_empty() && matrix[5][0].to_lowercase() == "yes" { //IGT
+			payload.push_str(" \"verified\": true,\n");
+		}
+		
 		let mut should_next_comma_left2 = false;
-        if matrix[i][4] != "NO" {
+        if !matrix[i][4].is_empty() && matrix[i][4] != "NO" {
 			payload.push_str(" \"players\": [\n");
 			let player_vec = matrix[i][4].split(',');
 			for player in player_vec {
@@ -189,18 +194,18 @@ fn main() {
 		//times
         payload.push_str(" \"times\": {\n");
         let mut should_next_comma_left = false;
-		if matrix[i][6] != "NO" { //LRT
+		if !matrix[i][6].is_empty() && matrix[i][6] != "NO" { //LRT
 			payload.push_str(&format!("  \"realtime_noloads\": {}", parse_to_seconds(&matrix[i][6]) ) );
 			should_next_comma_left = true;
 		}
-		if matrix[i][7] != "NO" { //RTA
+		if !matrix[i][7].is_empty() && matrix[i][7] != "NO" { //RTA
 			if should_next_comma_left {
 				payload.push_str(",\n");
 			}
 			payload.push_str(&format!("  \"realtime\": {}", parse_to_seconds(&matrix[i][7]) ) );
 			should_next_comma_left = true;
 		}
-		if matrix[i][8] != "NO" { //IGT
+		if !matrix[i][8].is_empty() && matrix[i][8] != "NO" { //IGT
 			if should_next_comma_left {
 				payload.push_str(",\n");
 			}
@@ -283,6 +288,9 @@ fn main() {
 			//=======
 		payload.push_str("\n }");// close variables
 		pre_patch_payload.push_str("\n }");// close variables
+		
+		
+		
 		payload.push_str("\n}}");
 		pre_patch_payload.push_str("\n}}");
 		//==============

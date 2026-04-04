@@ -44,7 +44,6 @@ fn largest_options_count(category: &Category) -> usize {
         .unwrap_or(0)                  // 0 if no variables
 }
 
-// Example function to write the CSV to a file
 fn write_csv(matrix: Vec<Vec<String>>, filename: &str) -> std::io::Result<()> {
     use std::fs::File;
     use std::io::Write;
@@ -79,7 +78,9 @@ fn main() {
 	
 	let ggd_raw = fetch(&format!("v2/GetGameData?gameUrl={}", game_abbreviation), "ggd");
     let parsed_ggd = json::parse(&ggd_raw).unwrap();
-    let mut archived_map: HashMap<String, bool> = HashMap::new();
+    
+    let mut archived_map_vars: HashMap<String, bool> = HashMap::new();
+    let mut archived_map_options: HashMap<String, bool> = HashMap::new();
 
 for i in 0..parsed_ggd["variables"].len() {
     let id = parsed_ggd["variables"][i]["id"].as_str().unwrap().to_string();
@@ -87,10 +88,19 @@ for i in 0..parsed_ggd["variables"].len() {
         .as_bool()
         .unwrap_or(false);
 
-    archived_map.insert(id, archived);
+    archived_map_vars.insert(id, archived);
 }
+for i in 0..parsed_ggd["values"].len() {
+    let id = parsed_ggd["values"][i]["id"].as_str().unwrap().to_string();
+    let archived = parsed_ggd["values"][i]["archived"]
+        .as_bool()
+        .unwrap_or(false);
+
+    archived_map_options.insert(id, archived);
+}
+
 	if modifier == "debug" {
-		println!("{:?}", archived_map);
+		println!("{:?}", archived_map_vars);
 	}
 	let categories_raw = fetch(&format!("v1/games/{}/categories", game_abbreviation), "categories");
 	let parsed_categories = json::parse(&categories_raw).unwrap();
@@ -141,50 +151,12 @@ for i in 0..parsed_ggd["variables"].len() {
     if modifier == "debug" {
 		println!("Variables for {}:\n========", selected_cat.name);
 	}
-    /*for i in 0..parsed_variables["data"].len() {
-		//variable==== id/ name
-		println!("{}/ {}", parsed_variables["data"][i]["id"], parsed_variables["data"][i]["name"]);
-		
-		let mut is_per_level = false;
-		let mut if_il_id = String::new();
-		
-		if parsed_variables["data"][i]["scope"]["type"] == "single-level" {
-			if_il_id = parsed_variables["data"][i]["scope"]["level"].to_string();
-			is_per_level = true;
-		}
-		
-		let mut options: Vec<String> = Vec::new();
-		//varible options
-		for (id, name) in parsed_variables["data"][i]["values"]["values"].entries() {
-			let option = format!("{}/ {}", id, name["label"]);
-			//println!("===={}/ {}", id, name["label"]);
-			options.push(option);
-		}
-		
-		//variable==== options Vec<optionID,optionNAME
-		//println!("{:?}", options);
-		if is_per_level {
-			vars_per_level.push( Variable {
-					id: parsed_variables["data"][i]["id"].to_string(),
-					name: parsed_variables["data"][i]["name"].to_string(),
-					if_il_id: if_il_id,
-					options: options, //Vec<String>
-			});
-		} else {
-			vars.push( Variable {
-					id: parsed_variables["data"][i]["id"].to_string(),
-					name: parsed_variables["data"][i]["name"].to_string(),
-					if_il_id: if_il_id,
-					options: options, //Vec<String>
-			});
-		}
-		//println!("{}/ {} |Options:", vars[i].id, vars[i].name);
-	}*/
+
 	for i in 0..parsed_variables["data"].len() {
 		let id = parsed_variables["data"][i]["id"].as_str().unwrap().to_string();
 
 		//cross reference ggd
-		let is_archived = archived_map.get(&id).copied().unwrap_or(false);
+		let is_archived = archived_map_vars.get(&id).copied().unwrap_or(false);
 
 		if is_archived {
 			continue;
@@ -204,6 +176,16 @@ for i in 0..parsed_ggd["variables"].len() {
 
 		let mut options: Vec<String> = Vec::new();
 		for (opt_id, name) in parsed_variables["data"][i]["values"]["values"].entries() {
+			let id = opt_id.clone().to_string();
+			
+			let is_archived = archived_map_options.get(&id).copied().unwrap_or(false);
+			
+			//let is_archived = archived_map_options.get(&id).copied().unwrap_or(false);
+			
+			if is_archived {
+				continue;
+			}
+			
 			options.push(format!("{}/ {}", opt_id, name["label"]));
 		}
 
