@@ -5,6 +5,7 @@ Utilities for interacting with the speedrun.com platform via curl requests.
 ## Features:
 - **Prepare sheet:** Prepares a spreadsheet, for *submit sheet* feature.
 - **Submit sheet:** Submits speedruns with data from a spreadsheet.
+- **Timestamp sheet:** After preparing a sheet with *prepare-sheet*, you can use this to generate timestamped youtube links and also fill in the time fields for run submission automatically, from the comment retime notes you input.
 > Legacy feature: EDL mode, prepares a spreadsheet from an edl file. Currently is **NOT** compatible with *submit sheet* feature. 
 #### Note:
 The program relies on:
@@ -85,9 +86,24 @@ submit-sheet.exe keykeykeykeykeykey spreadsheet.csv
 Now we compare the output of the command line, where each json payload represents the run to our spreadsheet.
 > **BIG NOTE:** If a game has level-specific variables, the output, will be very crowded, because of api v1 quirk, where you need to declare each level-specific variable on each level, this might get fixed some day.
 If it matches up. we type "yes", and our runs will be submitted, with a limit of 1 request per 2 seconds.
-
+ doesnt have 'watch?v=' there, this may be fixed in a later release, i guess its not hard to just check if arguments are already present.
+2. 
 Monitor the output after that, to see speedrun.com error codes.
 
 ![ilustrative image](readmeimages/5presubmit.PNG "")
 
 **ALWAYS CHECK PENDING AFTERWARDS**
+
+### EXTRA 1. Timestamp sheet:
+1. In the spreadsheet editor, input your retime notes into COMMENT column like this:
+```shell
+Note: Start Time 1:18.267, End Time: 1:29.3, Frame Rate: 30, Time: 11.033
+```
+The script will get the times, turn the first into seconds, subtracts 1 and uses that as timestamp, then pastes the last one into the time field.
+Command example:
+```shell
+timestamp-sheet.exe kktglm.csv https://youtu.be/tvaTwqzxfXk rta
+```
+*gets all times from notes, and pastes the final time into the rta column.
+You can do LRTIGT, IGT... combinations like this.
+NOTE: the script adds '?t=' at the end, so make sure your link
