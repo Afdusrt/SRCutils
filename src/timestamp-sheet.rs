@@ -36,7 +36,9 @@ fn parse_to_seconds(input: &str) -> i32 {
 const HELP: &str = "HELP:
 ====
 arg 1 - csv sheet
-arg 2 - base youtube link (that '?t=' can be added after) (you can also input 'inline' to grab a video link from above the VIDEO in the video column
+arg 2 - base youtube link (that '?t=' can be added after)
+        -(you can also input 'inline' to grab a video link from above the VIDEO in the video column
+        -(you can also input 'replace' to grab a video link from video column itself)
 arg 3 - time field (RTALRTIGT <- string like this, eg. you can do \"LRTIGT\" for both, \"IGT\" for only igt...)
 =
 This is for sheets made with prepare-sheet, it extracts retiming notes from the comment column, and then generates timestamped youtube links.
@@ -116,14 +118,20 @@ fn main() {
 	
     let mut first_run_line_index: usize = matrix[3][0].parse().expect("");
     first_run_line_index -= 1;
-    
-    let yt_link = if yt_link.trim() == "inline" {
+    let mut replace_thingamabob = false;
+    if yt_link == "replace" {
+		replace_thingamabob = true
+	}
+    let mut yt_link = if yt_link.trim() == "inline" {
 		matrix[first_run_line_index - 2][9].clone() // owned String
 	} else {
 		yt_link.to_string() // convert &str to owned String
 	};
     
     for i in first_run_line_index..matrix.len() {
+		if replace_thingamabob {
+			yt_link = matrix[i][9].clone();
+		}
 		//==============
 		let note = &matrix[i][10];
 		

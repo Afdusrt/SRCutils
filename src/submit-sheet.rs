@@ -58,6 +58,7 @@ const HELP: &str = "HELP:
 ====
 arg 1 - api key, from speedrun.com -> settings -> api key
 arg 2 - csv file to submit
+arg 3 - sleep time in milliseconds between requests
 =
 You will be prompted to validate that the runs that will be submitted are correct.
 You will need to open the csv file in a program like libreoffice, to fill out correct values before using submit-sheet, refer to the README.
@@ -67,13 +68,15 @@ Ensure the last line of the csv file is in correspondce to the spec.
 fn main() {
     let args: Vec<_> = env::args().collect();
     
-    if args.len() < 3 {
+    if args.len() < 4 {
 		eprintln!("{}", HELP);
 		process::exit(1);
 	}
 	
     let api_key = &args[1];
     let file_path = &args[2];
+    let to_sleep_str = &args[3];
+	let to_sleep: u64 = to_sleep_str.parse().expect("to sleep argument was not a number i32");
 
     let f = fs::read_to_string(file_path).unwrap();
     
@@ -185,7 +188,11 @@ fn main() {
 				if should_next_comma_left2 {
 					payload.push_str(",\n");
 				}
-				payload.push_str(&format!("  {{\"rel\": \"user\", \"id\": \"{}\"}}", player));
+				if player.contains("(guest)") {
+					payload.push_str(&format!("  {{\"rel\": \"guest\", \"name\": \"{}\"}}", &player[7..]));
+				} else {
+					payload.push_str(&format!("  {{\"rel\": \"user\", \"id\": \"{}\"}}", player));
+				}
 				should_next_comma_left2 = true;
 			}
 			payload.push_str("\n ],\n");
@@ -339,7 +346,8 @@ fn main() {
 		let string_to_print = String::from_utf8_lossy(&output.stdout);
 		println!("{:?}", string_to_print);
 		println!("Sleeping for 2s");
-		sleep(Duration::new(2, 0));
+		//sleep(Duration::new(2, 0));
+		sleep(Duration::from_millis(to_sleep));
 	}
 	println!("=========\nDone. Check your pending.");
 }
