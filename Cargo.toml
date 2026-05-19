@@ -17,3 +17,10 @@ path = "src/submit-sheet.rs"
 [[bin]]
 name = "timestamp-sheet"
 path = "src/timestamp-sheet.rs"
+
+[[bin]]
+name = "uncredit-user"
+path = "src/uncredit-user.rs"
+[[bin]]
+name = "resolve-ids"
+path = "src/resolve-ids.rs"
