@@ -1,6 +1,6 @@
 # SRCutils
 
-Utilities for interacting with the speedrun.com platform via curl requests.
+Utilities for interacting with speedrun.com (for farmers, by farmers).
 
 ## Features:
    -check-updates: check for updates
@@ -44,12 +44,6 @@ Utilities for interacting with the speedrun.com platform via curl requests.
       -arg 4: game abbreviation or id
       -arg 5: api key
       -arg 6: sleep in milliseconds between requests
-#### Note:
-The program relies on:
-```rust
-std::process::Command("curl").arg(...
-```
-to send requests to speedrun.com, so make sure curl is on your path.
 
 ## Usage
 For this example, we will prepare and submit a spreadsheet of runs for speedrun.com/seterra.
