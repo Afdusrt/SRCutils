@@ -35,11 +35,13 @@ Argument 1: mode
          -(you can also input 'inline' to grab a video link from above the VIDEO in the video column
          -(you can also input 'replace' to grab a video link from video column itself)
       -arg 4: time field (RTALRTIGT <- string like this, eg. you can do \"LRTIGT\" for both, \"IGT\" for only igt...)
+      outputs TIMESTAMPED-csv sheet.csv
       
    -resolveids: get userids from a spreadsheet that contains usernames (necessary befory submit-sheet
       -arg 2: csv sheet
+      outputs RESOLVED-IDS-csv sheet.csv
       
-   -uncredit: uncredit a user's run with a filter
+   -uncredit: uncredit a user's runs with a filter
       -arg 2: user name of victim
       -arg 3: guest name that the victim will be forced into
       -arg 4: game abbreviation or id

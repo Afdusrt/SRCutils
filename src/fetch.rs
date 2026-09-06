@@ -8,7 +8,7 @@ use crate::things;
 //pub fn entry(args: &Vec<String>) -> Result<(), &'static str> {
 pub fn entry(args: &Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
 	//defaults
-	let mut database_path = "users.txt";
+	let mut database_path = "online";
 	let mut out_folder = "fetchGUL";
 	
 	match args.len() {
@@ -17,8 +17,12 @@ pub fn entry(args: &Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
 		4 => { database_path = &args[2]; out_folder = &args[3] },
 		_ => { return Err("Too many arguments, typo?".into()); }
 	}
-	
-	let database = fs::read_to_string(database_path)?;
+	let database = match database_path {
+			"online" => { println!("Fetching online database 'https://gist.githubusercontent.com/Afdusrt/e78b52fdcb366517646abeee1362692e/raw/'");
+						  things::get("https://gist.githubusercontent.com/Afdusrt/e78b52fdcb366517646abeee1362692e/raw/")?
+						},
+			_ => { fs::read_to_string(database_path)? }
+		};
 		
 	let starting_over: bool = match fs::create_dir(out_folder) {
 			Ok(()) => { false },
