@@ -59,14 +59,6 @@ arg 2 - csv file to save
 ```shell
 $ prepare-sheet.exe seterra spreadsheet.csv
 ```
-Note: Throughout the programs runtime, you will see sections like this, these are just outputs from Curl being ran, we can ignore these. (they still get printed to show that the program didnt halt or something)
-```shell
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-100   376    0   376    0     0    187      0 --:--:--  0:00:02 --:--:--   462
-100 18239    0 18239    0     0   4783      0 --:--:--  0:00:03 --:--:-- 23087
-```
 3. The first prompt you recieve, is to choose a category.
 ```shell
 Pick category?:
