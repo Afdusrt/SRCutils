@@ -90,8 +90,10 @@ NOTE: For this example, libreoffice calc is used.
 
 ![ilustrative image](readmeimages/1libreofficeopen.PNG "")
 
-2. You now see the format. Do not modify A1 -> A4. Each row below the headers (date, region...) is a seperate run. Fill in all fields. Use a full video link. Do not include '"' in your comment. To choose variables, copy cells from the reference. (in this example,  the first run will set the platform variable to website, and the second run will set it to touch web). NOTE: For APIv1, you have to submit with archived variables set. In the screenshot, this spreadsheet will fail to submit, because not every row is full. you can delete rows of levels you didnt do.
+2. You now see the format. Do not modify A1 -> A4. Each row below the headers (date, region...) is a seperate run. Fill in all fields. Use a full video link. Do not include '"' in your comment. To choose variables, copy cells from the reference. (in this example,  the first run will set the platform variable to website, and the second run will set it to touch web). This spreadsheet will fail to submit, because not every row is full. you can delete rows of levels you didnt do.
 3. Some variables are per level only, these are represented at the end of the row, next to the affected level. manually unwrap the value you want. (run 3, (highlighted in green), will be invalid, because we didnt unwrap our chosen value), run 4 is valid.
+4. For coop, only game Moderators (not verifiers) can submit coop spreadsheets. You can either fill out IDs directly, OR names, and then use the resolve-ids feature to prepare ids. (you cannot use submit sheet for just names, you have to have IDs in the spreadsheet.
+5. It will fail to submit if you fill out a time that the game doesnt have set. e.g. you cannot submit load removed time to color book. Color book sorts by RTA.
 
 ![ilustrative image](readmeimages/4libreofficetop.PNG "")
    
