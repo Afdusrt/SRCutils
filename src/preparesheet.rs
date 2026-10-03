@@ -373,7 +373,7 @@ struct Category {
 	matrix[max_options+2][5] = "level".to_string();
 		matrix[max_options+3][5] = "NO".to_string();
 	matrix[max_options+2][6] = "LRT".to_string();
-		matrix[max_options+3][6] = "NO".to_string();
+		//matrix[max_options+3][6] = "NO".to_string();
 	matrix[max_options+2][7] = "RTA".to_string();
 	matrix[max_options+2][8] = "IGT".to_string();
 	matrix[max_options+2][9] = "VIDEO".to_string();

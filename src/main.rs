@@ -105,6 +105,7 @@ fn decypher_mode(args: &Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn main() {
+	println!("SRCutils version: {}", env!("CARGO_PKG_VERSION") );
 	let args: Vec<String> = env::args().collect();
 	
 	match decypher_mode(&args) {

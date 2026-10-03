@@ -151,10 +151,11 @@ pub fn entry(args: &Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
 	let user_summary = fetch_raw(&format!("v2/GetUserSummary?Url={}", user_name), "user_summary");
     let parsed_user_summary = json::parse(&user_summary).unwrap();
     */
-    let user_summary = fetch(&format!("v2/GetUserSummary?Url={}", user_name))?;
-    let parsed_user_summary = json::parse(&user_summary)?;
+    //let user_summary = fetch(&format!("v2/GetUserSummary?Url={}", user_name))?;
+    //let parsed_user_summary = json::parse(&user_summary)?;
     
-	let userId = parsed_user_summary["user"]["id"].as_str().unwrap();
+	//let userId = parsed_user_summary["user"]["id"].as_str().unwrap();
+	let userId = &user_name;
 	/*
 	let userId = "8w12903x"; //VANCANTORUS
 	let guest_name = "[]vancantorus"; //VANCANTORUS

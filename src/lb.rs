@@ -35,7 +35,10 @@ pub fn entry(args: &Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
 		
 		let path_data = fs::read_to_string(&path)?;
 		
-		let data: LeaderboardResponse = serde_json::from_str(&path_data)?;
+		let data: LeaderboardResponse = match serde_json::from_str(&path_data) {
+				Ok(res) => res,
+				Err(e) => { eprintln!("SKIP Error deserializing json for: {} - {}", path_data, e); continue }
+			};
 		
 		let mut user = compute_user(data);
 		if user.areaId.len() > 2 {
@@ -66,5 +69,7 @@ pub fn entry(args: &Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
         
         fs::write(format!("{}/{}.txt", out_folder, leaderboard.name), out)?;
 	}
+	
+	println!("Done.");
 	return Ok(())
 }

@@ -18,8 +18,8 @@ pub fn entry(args: &Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
 		_ => { return Err("Too many arguments, typo?".into()); }
 	}
 	let database = match database_path {
-			"online" => { println!("Fetching online database 'https://gist.githubusercontent.com/Afdusrt/e78b52fdcb366517646abeee1362692e/raw/'");
-						  things::get("https://gist.githubusercontent.com/Afdusrt/e78b52fdcb366517646abeee1362692e/raw/")?
+			"online" => { println!("Fetching online database 'https://raw.githubusercontent.com/Afdusrt/SRCutils/refs/heads/0.2-era/users.txt'");
+						  things::get("https://raw.githubusercontent.com/Afdusrt/SRCutils/refs/heads/0.2-era/users.txt")?
 						},
 			_ => { fs::read_to_string(database_path)? }
 		};

@@ -16,11 +16,21 @@ pub fn check_update() -> Result<(), Box<dyn std::error::Error>> {
     let json_body = json::parse(&body_string)?;
     
     if this_version == json_body["tag_name"] {
-		println!("no updates needed");
+		println!("This is the latest version");
 	} else {
-		let url = json_body["html_url"].as_str().unwrap();
-
-		println!("Update available: {url}");
+		//let url = json_body["html_url"].as_str().unwrap();
+		//println!("Update available 'manual': {url}");
+		println!("update available, downloading new update.");
+		let browser_download_url = &json_body["assets"][0]["browser_download_url"].to_string();
+		
+		let response = ureq::get(browser_download_url).call()?;
+		let mut reader = response.into_body().into_reader();
+		
+		let file_name = &json_body["assets"][0]["name"].to_string();
+		let mut file = std::fs::File::create(file_name)?;
+		std::io::copy(&mut reader, &mut file)?;
+		
+		println!("New exe file has been saved.");
 	}
 	
     Ok(())
@@ -97,7 +107,7 @@ pub struct UserFields {
 pub struct Run {
     gameId: String,
     categoryId: Option<String>,
-    place: Option<u32>,
+    place: Option<String>,
     levelId: Option<String>,
     platformId: Option<String>,
     date: Option<i64>,
@@ -160,7 +170,7 @@ pub fn leaderboards_vec() -> Vec<Leaderboard> {
 		Leaderboard {
 			name: "wr-leaderboards",
 			lb_size: 200,
-			run_filter: |run| { if run.place == Some(1) { true } else { false } },
+			run_filter: |run| { if run.place == Some("1".to_string()) { true } else { false } },
 			value: LeaderboardValue::Count(0),
 		},
 		Leaderboard {
@@ -184,18 +194,18 @@ pub fn leaderboards_vec() -> Vec<Leaderboard> {
 			name: "categories-leaderboards",
 			lb_size: 200,
 			run_filter: |_| false,
-			value: LeaderboardValue::ArrayLen( ( 0, |data: &LeaderboardResponse| data.categories.as_array().unwrap().len() ) )
+			value: LeaderboardValue::ArrayLen( (0, |data: &LeaderboardResponse| data.categories.as_array().unwrap().len() ) )
 		},
 		Leaderboard {
 			name: "wrs-full-game-leaderboards",
 			lb_size: 200,
-			run_filter: |run| { if run.place == Some(1) && run.levelId == None { true } else { false } },
+			run_filter: |run| { if run.place == Some("1".to_string()) && run.levelId == None { true } else { false } },
 			value: LeaderboardValue::Count(0),
 		},
 		Leaderboard {
 			name: "wrs-il-leaderboards",
 			lb_size: 200,
-			run_filter: |run| { if run.place == Some(1) && !(run.levelId == None) { true } else { false } },
+			run_filter: |run| { if run.place == Some("1".to_string()) && !(run.levelId == None) { true } else { false } },
 			value: LeaderboardValue::Count(0),
 		},
 		Leaderboard {
@@ -213,13 +223,13 @@ pub fn leaderboards_vec() -> Vec<Leaderboard> {
 		Leaderboard {
 			name: "podiums-leaderboards",
 			lb_size: 200,
-			run_filter: |run| { if run.place == Some(1) || run.place == Some(2) || run.place == Some(3) { true } else { false } },
+			run_filter: |run| { if run.place == Some("1".to_string()) || run.place == Some("2".to_string()) || run.place == Some("3".to_string()) { true } else { false } },
 			value: LeaderboardValue::Count(0),
 		},
 		Leaderboard {
 			name: "games-with-wrs-leaderboards",
 			lb_size: 200,
-			run_filter: |run| { if run.place == Some(1) { true } else { false } },
+			run_filter: |run| { if run.place == Some("1".to_string()) { true } else { false } },
 			value: LeaderboardValue::HashSet((
 				HashSet::new(),
 				|run, set| {
@@ -309,7 +319,7 @@ pub fn leaderboards_vec() -> Vec<Leaderboard> {
 		Leaderboard {
 			name: "wrs-solo",
 			lb_size: 200,
-			run_filter: |run| { if (run.playerIds.len() == 1) && (run.place == Some(1)) { true } else { false } },
+			run_filter: |run| { if (run.playerIds.len() == 1) && (run.place == Some("1".to_string())) { true } else { false } },
 			value: LeaderboardValue::Count(0),
 		},
 		Leaderboard {
@@ -327,7 +337,7 @@ pub fn leaderboards_vec() -> Vec<Leaderboard> {
 		Leaderboard {
 			name: "wrs-coop",
 			lb_size: 200,
-			run_filter: |run| { if (run.playerIds.len() > 1) && (run.place == Some(1)) { true } else { false } },
+			run_filter: |run| { if (run.playerIds.len() > 1) && (run.place == Some("1".to_string())) { true } else { false } },
 			value: LeaderboardValue::Count(0),
 		},
 		Leaderboard {
@@ -387,6 +397,12 @@ pub fn leaderboards_vec() -> Vec<Leaderboard> {
 			name: "speedruns-sunday",
 			lb_size: 100,
 			run_filter: |run| { is_weekday(run.date, Weekday::Sun) },
+			value: LeaderboardValue::Count(0),
+		},
+		Leaderboard {
+			name: "supercrazestar-runs",
+			lb_size: 100,
+			run_filter: |run| { if run.playerIds.contains(&"8qrpwmdj".to_string()) { true } else { false } },
 			value: LeaderboardValue::Count(0),
 		},
 	]
